@@ -1,0 +1,78 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<style>
+:root {
+  color-scheme: dark light;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 1rem;
+  font-family: system-ui, sans-serif;
+}
+
+button {
+  display: block;
+}
+</style>
+
+<div class="text-center">    
+    <button type="button" id="paste-button" class="display-4">Format Dependency From Clipboard</button>
+</div>
+
+<h1>Dependency List:</h1>
+<textarea></textarea>
+
+<script>
+    function formatAndPaste(text) {
+        const lines = text.split('\n');
+
+        // Add double quotes to the beginning and end of each line
+        const formattedText = lines.map((line, index) => {
+            if (index === lines.length - 1) {
+                // If it's the last line, end with a double quote
+                return `"${line}"`;
+            } else {
+                // Otherwise, add double quotes to both the beginning and end of the line
+                return `"${line}",`;
+            }
+        });
+
+        // Join the lines back together
+        const formattedTextString = formattedText.join('\n');
+
+        // Update the textarea with the formatted text
+        const textArea = document.querySelector('textarea');
+        textArea.value += formattedTextString;
+        navigator.clipboard.writeText(textArea.value);
+        alert('Copied Dependency List');
+    }
+        const pasteButton = document.querySelector('#paste-button');
+    pasteButton.addEventListener('click', async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            formatAndPaste(text);
+            console.log('Text pasted and formatted.');
+        } catch (error) {
+            console.log('Failed to read clipboard. Using exeCommand insted.');
+            const textArea = document.querySelector('textarea');
+            textArea.focus();
+            const result = document.execCommand('paste');
+            console.log('document.execCommand result: ', result);
+            formatAndPaste(textArea.value);
+        }
+    });
+</script>
